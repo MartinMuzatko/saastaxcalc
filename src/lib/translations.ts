@@ -136,7 +136,7 @@ export const translations: Record<Locale, Translations> = {
             willMakeIt: "You're gonna make it!",
             wontMakeIt: "You're not gonna make it",
             surplus: 'more per month than needed.',
-            shortfall: 'per month.',
+            shortfall: 'more per month.',
         },
         steps: {
             revenue: 'Revenue',
