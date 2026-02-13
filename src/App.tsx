@@ -35,7 +35,8 @@ function App() {
     const [revenueInput, setRevenueInput] = useState<number | ''>(70_000)
     const [monthlyPriceInput, setMonthlyPriceInput] = useState<number | ''>(10)
     const [monthlyLivingCostInput, setMonthlyLivingCostInput] = useState<number | ''>(2_000)
-    const [includeAppStoreProvision, setIncludeAppStoreProvision] = useState(true)
+    const [includeAppStoreProvision, setIncludeAppStoreProvision] = useState(false)
+    const [includePaymentService, setIncludePaymentService] = useState(false)
 
     const t: Translations = translations[locale]
 
@@ -68,8 +69,13 @@ function App() {
     }, [revenue, monthlyPrice])
 
     const taxResult = useMemo(
-        () => calculateSaasTaxes(revenue, !includeAppStoreProvision),
-        [revenue, includeAppStoreProvision]
+        () =>
+            calculateSaasTaxes(revenue, {
+                excludeAppStoreProvision: !includeAppStoreProvision,
+                excludePaymentService: !includePaymentService,
+                subscribers: usersNeeded,
+            }),
+        [revenue, includeAppStoreProvision, includePaymentService, usersNeeded]
     )
     const monthlyNetIncome = useMemo(() => {
         if (revenue <= 0) {
@@ -192,8 +198,11 @@ function App() {
 
                 <TaxCalculator
                     revenue={revenue}
+                    subscribers={usersNeeded}
                     includeAppStoreProvision={includeAppStoreProvision}
                     onIncludeAppStoreProvisionChange={setIncludeAppStoreProvision}
+                    includePaymentService={includePaymentService}
+                    onIncludePaymentServiceChange={setIncludePaymentService}
                     locale={locale}
                     translations={t}
                 />

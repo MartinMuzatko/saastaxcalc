@@ -5,19 +5,36 @@ import { type Translations } from '../lib/translations'
 
 interface TaxCalculatorProps {
     revenue: number
+    /** Number of subscribers (for payment service fee calculation) */
+    subscribers: number
     includeAppStoreProvision: boolean
     onIncludeAppStoreProvisionChange: (include: boolean) => void
+    includePaymentService: boolean
+    onIncludePaymentServiceChange: (include: boolean) => void
     locale: Locale
     translations: Translations
 }
 
 export function TaxCalculator(props: TaxCalculatorProps) {
-    const { revenue, includeAppStoreProvision, onIncludeAppStoreProvisionChange, locale, translations } =
-        props
+    const {
+        revenue,
+        subscribers,
+        includeAppStoreProvision,
+        onIncludeAppStoreProvisionChange,
+        includePaymentService,
+        onIncludePaymentServiceChange,
+        locale,
+        translations,
+    } = props
 
     const result = useMemo(
-        () => calculateSaasTaxes(revenue, !includeAppStoreProvision),
-        [revenue, includeAppStoreProvision]
+        () =>
+            calculateSaasTaxes(revenue, {
+                excludeAppStoreProvision: !includeAppStoreProvision,
+                excludePaymentService: !includePaymentService,
+                subscribers,
+            }),
+        [revenue, includeAppStoreProvision, includePaymentService, subscribers]
     )
 
     const t = translations
@@ -60,7 +77,10 @@ export function TaxCalculator(props: TaxCalculatorProps) {
                         <Table.Tbody>
                             {steps.map((step) => {
                                 const isAppStoreStep = step.id === 'app-store'
-                                const isStrikethrough = isAppStoreStep && !includeAppStoreProvision
+                                const isPaymentServiceStep = step.id === 'payment-service'
+                                const isStrikethrough =
+                                    (isAppStoreStep && !includeAppStoreProvision) ||
+                                    (isPaymentServiceStep && !includePaymentService)
 
                                 return (
                                     <Table.Tr key={step.id}>
@@ -71,6 +91,17 @@ export function TaxCalculator(props: TaxCalculatorProps) {
                                                         checked={includeAppStoreProvision}
                                                         onChange={(e) =>
                                                             onIncludeAppStoreProvisionChange(
+                                                                e.currentTarget.checked
+                                                            )
+                                                        }
+                                                        size="sm"
+                                                    />
+                                                )}
+                                                {isPaymentServiceStep && (
+                                                    <Checkbox
+                                                        checked={includePaymentService}
+                                                        onChange={(e) =>
+                                                            onIncludePaymentServiceChange(
                                                                 e.currentTarget.checked
                                                             )
                                                         }
@@ -90,6 +121,8 @@ export function TaxCalculator(props: TaxCalculatorProps) {
                                                                 return t.steps.vat
                                                             case 'app-store':
                                                                 return t.steps.appStoreProvision
+                                                            case 'payment-service':
+                                                                return t.steps.paymentServiceProvision
                                                             case 'gewerbesteuer':
                                                                 return t.steps.businessTax
                                                             case 'einkommensteuer':

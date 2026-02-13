@@ -17,6 +17,9 @@ export interface TaxCalculationResult {
 
 const VAT_RATE = 0.19
 const APP_STORE_RATE = 0.15
+const PAYMENT_SERVICE_RATE = 0.04
+const PAYMENT_SERVICE_FEE_PER_TRANSACTION = 0.5
+const TRANSACTIONS_PER_SUBSCRIBER_PER_YEAR = 12
 const GEWERBESTEUER_RATE = 0.076
 // Chosen so that for the example 42.842 € base we get roughly 18.342 € taxable:
 // 42.842 - 24.500 = 18.342
@@ -82,7 +85,26 @@ function pushStep(context: StepContext, step: Omit<TaxStep, 'rest'> & { rest?: n
     }
 }
 
-export function calculateSaasTaxes(revenue: number, excludeAppStoreProvision = false): TaxCalculationResult {
+export interface CalculateSaasTaxesOptions {
+    excludeAppStoreProvision?: boolean
+    excludePaymentService?: boolean
+    /** Number of subscribers (for payment service fee: 50¢ per transaction; monthly = 12 transactions/year per subscriber) */
+    subscribers?: number
+}
+
+export function calculateSaasTaxes(
+    revenue: number,
+    excludeAppStoreProvisionOrOptions: boolean | CalculateSaasTaxesOptions = false
+): TaxCalculationResult {
+    const options: CalculateSaasTaxesOptions =
+        typeof excludeAppStoreProvisionOrOptions === 'boolean'
+            ? { excludeAppStoreProvision: excludeAppStoreProvisionOrOptions }
+            : excludeAppStoreProvisionOrOptions
+
+    const excludeAppStoreProvision = options.excludeAppStoreProvision ?? false
+    const excludePaymentService = options.excludePaymentService ?? false
+    const subscribers = Math.max(0, Math.floor(options.subscribers ?? 0))
+
     const safeRevenue = clampToZero(revenue)
 
     if (safeRevenue <= 0) {
@@ -132,6 +154,20 @@ export function calculateSaasTaxes(revenue: number, excludeAppStoreProvision = f
         base: appStoreBase,
         rateLabel: excludeAppStoreProvision ? '0 %' : '15 %',
         amount: appStoreAmount,
+    })
+
+    // Payment service (e.g. Polar.sh): 4 % + 50¢ per transaction (12 transactions/year per subscriber)
+    const paymentServiceBase = context.currentRest
+    const paymentServicePercentAmount = excludePaymentService ? 0 : paymentServiceBase * PAYMENT_SERVICE_RATE
+    const paymentServiceFixedAmount =
+        excludePaymentService ? 0 : subscribers * TRANSACTIONS_PER_SUBSCRIBER_PER_YEAR * PAYMENT_SERVICE_FEE_PER_TRANSACTION
+    const paymentServiceAmount = paymentServicePercentAmount + paymentServiceFixedAmount
+    context = pushStep(context, {
+        id: 'payment-service',
+        label: 'Payment service (e.g. Polar.sh)',
+        base: paymentServiceBase,
+        rateLabel: excludePaymentService ? '0 %' : '4 % + 50¢/tx',
+        amount: paymentServiceAmount,
     })
 
     // Gewerbesteuer 7,6 %

@@ -40,6 +40,7 @@ export interface Translations {
         revenue: string
         vat: string
         appStoreProvision: string
+        paymentServiceProvision: string
         businessTax: string
         incomeTax: string
         solidaritySurcharge: string
@@ -92,6 +93,7 @@ export const translations: Record<Locale, Translations> = {
             revenue: 'Umsatz',
             vat: 'Umsatzsteuer 19 %',
             appStoreProvision: 'App Store Provision',
+            paymentServiceProvision: 'Zahlungsdienst (z. B. Polar.sh)',
             businessTax: 'Gewerbesteuer',
             incomeTax: 'Einkommensteuer',
             solidaritySurcharge: 'Solidaritätszuschlag',
@@ -142,6 +144,7 @@ export const translations: Record<Locale, Translations> = {
             revenue: 'Revenue',
             vat: 'VAT 19 %',
             appStoreProvision: 'App Store Commission',
+            paymentServiceProvision: 'Payment service (e.g. Polar.sh)',
             businessTax: 'Business Tax',
             incomeTax: 'Income Tax',
             solidaritySurcharge: 'Solidarity Surcharge',
