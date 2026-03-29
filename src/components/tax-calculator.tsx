@@ -11,6 +11,8 @@ interface TaxCalculatorProps {
     onIncludeAppStoreProvisionChange: (include: boolean) => void
     includePaymentService: boolean
     onIncludePaymentServiceChange: (include: boolean) => void
+    /** When true, revenue is gross (B2C, VAT included). When false, revenue is net (B2B, VAT excluded). */
+    grossPricing: boolean
     locale: Locale
     translations: Translations
 }
@@ -23,6 +25,7 @@ export function TaxCalculator(props: TaxCalculatorProps) {
         onIncludeAppStoreProvisionChange,
         includePaymentService,
         onIncludePaymentServiceChange,
+        grossPricing,
         locale,
         translations,
     } = props
@@ -33,8 +36,11 @@ export function TaxCalculator(props: TaxCalculatorProps) {
                 excludeAppStoreProvision: !includeAppStoreProvision,
                 excludePaymentService: !includePaymentService,
                 subscribers,
+                grossPricing,
+                vatGrossRateLabel: translations.steps.vatRateLabelGross,
+                vatNetRateLabel: translations.steps.vatRateLabelNet,
             }),
-        [revenue, includeAppStoreProvision, includePaymentService, subscribers]
+        [revenue, includeAppStoreProvision, includePaymentService, subscribers, grossPricing, translations]
     )
 
     const t = translations

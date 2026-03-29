@@ -37,6 +37,8 @@ function App() {
     const [monthlyLivingCostInput, setMonthlyLivingCostInput] = useState<number | ''>(2_000)
     const [includeAppStoreProvision, setIncludeAppStoreProvision] = useState(false)
     const [includePaymentService, setIncludePaymentService] = useState(false)
+    // true = B2C (gross, VAT included in price); false = B2B (net, VAT billed on top)
+    const [grossPricing, setGrossPricing] = useState(true)
 
     const t: Translations = translations[locale]
 
@@ -74,8 +76,9 @@ function App() {
                 excludeAppStoreProvision: !includeAppStoreProvision,
                 excludePaymentService: !includePaymentService,
                 subscribers: usersNeeded,
+                grossPricing,
             }),
-        [revenue, includeAppStoreProvision, includePaymentService, usersNeeded]
+        [revenue, includeAppStoreProvision, includePaymentService, usersNeeded, grossPricing]
     )
     const monthlyNetIncome = useMemo(() => {
         if (revenue <= 0) {
@@ -116,8 +119,25 @@ function App() {
                 <Card shadow="sm" padding="lg" radius="md" className="">
                     <Stack gap="md">
                         <Title order={3}>{t.input.title}</Title>
+                        <Stack gap="xs">
+                            <Text size="sm" fw={500}>{t.input.pricingMode}</Text>
+                            <SegmentedControl
+                                value={grossPricing ? 'b2c' : 'b2b'}
+                                onChange={(value) => setGrossPricing(value === 'b2c')}
+                                data={[
+                                    { label: t.input.pricingModeB2C, value: 'b2c' },
+                                    { label: t.input.pricingModeB2B, value: 'b2b' },
+                                ]}
+                                fullWidth
+                            />
+                            <Text size="xs" c="dimmed">
+                                {grossPricing
+                                    ? t.input.pricingModeB2CDescription
+                                    : t.input.pricingModeB2BDescription}
+                            </Text>
+                        </Stack>
                         <NumberInput
-                            label={t.input.yearlyRevenue}
+                            label={grossPricing ? t.input.yearlyRevenueGross : t.input.yearlyRevenueNet}
                             value={revenueInput}
                             onChange={(value) =>
                                 setRevenueInput(
@@ -203,6 +223,7 @@ function App() {
                     onIncludeAppStoreProvisionChange={setIncludeAppStoreProvision}
                     includePaymentService={includePaymentService}
                     onIncludePaymentServiceChange={setIncludePaymentService}
+                    grossPricing={grossPricing}
                     locale={locale}
                     translations={t}
                 />

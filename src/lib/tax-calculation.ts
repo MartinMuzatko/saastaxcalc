@@ -90,6 +90,18 @@ export interface CalculateSaasTaxesOptions {
     excludePaymentService?: boolean
     /** Number of subscribers (for payment service fee: 50¢ per transaction; monthly = 12 transactions/year per subscriber) */
     subscribers?: number
+    /**
+     * When true (B2C / gross pricing), the revenue input already includes VAT.
+     * VAT is extracted as revenue × (VAT_RATE / (1 + VAT_RATE)).
+     * When false (B2B / net pricing), the revenue input is already net of VAT;
+     * no VAT is deducted from the running total.
+     * Defaults to true (B2C / gross).
+     */
+    grossPricing?: boolean
+    /** Localised rate label shown for the VAT row when grossPricing is true (e.g. "19 % (incl.)") */
+    vatGrossRateLabel?: string
+    /** Localised rate label shown for the VAT row when grossPricing is false (e.g. "0 % (net)") */
+    vatNetRateLabel?: string
 }
 
 export function calculateSaasTaxes(
@@ -104,6 +116,10 @@ export function calculateSaasTaxes(
     const excludeAppStoreProvision = options.excludeAppStoreProvision ?? false
     const excludePaymentService = options.excludePaymentService ?? false
     const subscribers = Math.max(0, Math.floor(options.subscribers ?? 0))
+    // B2C (gross): revenue includes VAT → extract it. B2B (net): revenue is already net, VAT is billed on top.
+    const grossPricing = options.grossPricing ?? true
+    const vatGrossRateLabel = options.vatGrossRateLabel ?? '19 % (inkl.)'
+    const vatNetRateLabel = options.vatNetRateLabel ?? '0 % (netto)'
 
     const safeRevenue = clampToZero(revenue)
 
@@ -133,12 +149,17 @@ export function calculateSaasTaxes(
     })
 
     // Umsatzsteuer 19 %
-    const vatAmount = safeRevenue * VAT_RATE
+    // B2C/gross: VAT is embedded in the price → extract it: revenue × (rate / (1 + rate))
+    // B2B/net:   VAT is billed on top of the net price → no deduction from revenue
+    const vatAmount = grossPricing
+        ? safeRevenue * (VAT_RATE / (1 + VAT_RATE))
+        : 0
+    const vatRateLabel = grossPricing ? vatGrossRateLabel : vatNetRateLabel
     context = pushStep(context, {
         id: 'vat',
         label: 'Umsatzsteuer 19 %',
         base: safeRevenue,
-        rateLabel: '19 %',
+        rateLabel: vatRateLabel,
         amount: vatAmount,
     })
 

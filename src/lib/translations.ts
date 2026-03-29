@@ -6,10 +6,17 @@ export interface Translations {
     input: {
         title: string
         yearlyRevenue: string
+        yearlyRevenueGross: string
+        yearlyRevenueNet: string
         monthlyPrice: string
         monthlyLivingCost: string
         subscribersNeeded: string
         exampleValues: string
+        pricingMode: string
+        pricingModeB2C: string
+        pricingModeB2B: string
+        pricingModeB2CDescription: string
+        pricingModeB2BDescription: string
     }
     calculation: {
         title: string
@@ -39,6 +46,8 @@ export interface Translations {
     steps: {
         revenue: string
         vat: string
+        vatRateLabelGross: string
+        vatRateLabelNet: string
         appStoreProvision: string
         paymentServiceProvision: string
         businessTax: string
@@ -56,11 +65,18 @@ export const translations: Record<Locale, Translations> = {
             'Grobe Beispielrechnung für einen einfachen SaaS-Umsatz in Deutschland – ohne Garantie auf Vollständigkeit oder Richtigkeit.',
         input: {
             title: 'Eingabe',
-            yearlyRevenue: 'Jahresumsatz (brutto)',
+            yearlyRevenue: 'Jahresumsatz',
+            yearlyRevenueGross: 'Jahresumsatz (brutto, inkl. MwSt.)',
+            yearlyRevenueNet: 'Jahresumsatz (netto, ohne MwSt.)',
             monthlyPrice: 'Monatlicher Abo-Preis',
             monthlyLivingCost: 'Monatliche Lebenshaltungskosten',
             subscribersNeeded: 'Benötigte Abonnenten:',
             exampleValues: 'Beispielwerte:',
+            pricingMode: 'Preismodell',
+            pricingModeB2C: 'B2C – Bruttopreise',
+            pricingModeB2B: 'B2B – Nettopreise',
+            pricingModeB2CDescription: 'Kundenpreise enthalten MwSt. (typisch für Endkunden)',
+            pricingModeB2BDescription: 'Kundenpreise ohne MwSt. (typisch für Geschäftskunden)',
         },
         calculation: {
             title: 'Berechnung',
@@ -92,6 +108,8 @@ export const translations: Record<Locale, Translations> = {
         steps: {
             revenue: 'Umsatz',
             vat: 'Umsatzsteuer 19 %',
+            vatRateLabelGross: '19 % (inkl.)',
+            vatRateLabelNet: '0 % (netto)',
             appStoreProvision: 'App Store Provision',
             paymentServiceProvision: 'Zahlungsdienst (z. B. Polar.sh)',
             businessTax: 'Gewerbesteuer',
@@ -107,11 +125,18 @@ export const translations: Record<Locale, Translations> = {
             'Rough example calculation for a simple SaaS revenue in Germany – no guarantee of completeness or accuracy.',
         input: {
             title: 'Input',
-            yearlyRevenue: 'Yearly Revenue (gross)',
+            yearlyRevenue: 'Yearly Revenue',
+            yearlyRevenueGross: 'Yearly Revenue (gross, incl. VAT)',
+            yearlyRevenueNet: 'Yearly Revenue (net, excl. VAT)',
             monthlyPrice: 'Monthly Subscription Price',
             monthlyLivingCost: 'Monthly Living Costs',
             subscribersNeeded: 'Subscribers Needed:',
             exampleValues: 'Example Values:',
+            pricingMode: 'Pricing Model',
+            pricingModeB2C: 'B2C – Gross prices',
+            pricingModeB2B: 'B2B – Net prices',
+            pricingModeB2CDescription: 'Customer prices include VAT (typical for consumers)',
+            pricingModeB2BDescription: 'Customer prices exclude VAT (typical for businesses)',
         },
         calculation: {
             title: 'Calculation',
@@ -143,6 +168,8 @@ export const translations: Record<Locale, Translations> = {
         steps: {
             revenue: 'Revenue',
             vat: 'VAT 19 %',
+            vatRateLabelGross: '19 % (incl.)',
+            vatRateLabelNet: '0 % (net)',
             appStoreProvision: 'App Store Commission',
             paymentServiceProvision: 'Payment service (e.g. Polar.sh)',
             businessTax: 'Business Tax',
